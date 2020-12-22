@@ -11,6 +11,7 @@ final def keystorePropertiesFile = rootProject.file("keystore.properties")
 
 android {
     compileSdkVersion 30
+    buildFeatures.buildConfig = true
     buildFeatures.dataBinding = true
     buildFeatures.viewBinding = true
     defaultConfig {

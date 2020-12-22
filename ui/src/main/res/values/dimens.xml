@@ -6,4 +6,6 @@
     <dimen name="normal_margin">8dp</dimen>
     <dimen name="bottom_sheet_top_padding">8dp</dimen>
     <dimen name="bottom_sheet_icon_padding">16dp</dimen>
+    <!-- Imported from MDC to respect R class isolation -->
+    <dimen name="design_fab_size_normal">56dp</dimen>
 </resources>
