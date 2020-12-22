@@ -1,7 +1,7 @@
 buildscript {
     ext {
         activityVersion = '1.2.0-beta02'
-        agpVersion = '4.1.1'
+        agpVersion = '7.0.0-alpha03'
         annotationsVersion = '1.1.0'
         appcompatVersion = '1.2.0'
         biometricVersion = '1.1.0-rc01'
