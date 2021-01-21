@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wireguard.android.activity.TunnelToggleActivity">
+
+    <!--change splash background-->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/menuback"
+        android:scaleType="centerCrop"/>
+
+    <!--change logo-->
+    <ImageView
+        android:id="@+id/logosplash"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/splashlogo"/>
+
+    <!--change logo-->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_marginTop="-10dp"
+        android:layout_below="@+id/logosplash"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/maintitle"/>
+
+    <TextView
+        android:id="@+id/version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="v 1.0.0"
+        android:fontFamily="@font/monlight"
+        android:textSize="12sp"
+        android:textColor="@color/Text_idle"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="@dimen/dfive"
+        android:layout_marginBottom="@dimen/dfive"/>
+
+</RelativeLayout>

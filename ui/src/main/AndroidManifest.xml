@@ -17,9 +17,6 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
     <uses-feature
-        android:name="android.software.leanback"
-        android:required="false" />
-    <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
@@ -45,6 +42,17 @@
             android:theme="@style/NoBackgroundTheme" />
 
         <activity android:name=".activity.MainActivity">
+        </activity>
+
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/settings"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.SplashActivity"
+            android:label="@string/create_activity_title">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,16 +63,13 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/settings"
-            android:parentActivityName=".activity.MainActivity" />
-
+            android:name=".activity.LoginActivity"
+            android:label="@string/create_activity_title"/>
         <activity
-            android:name=".activity.TunnelCreatorActivity"
+            android:name=".activity.RegisterActivity"
             android:label="@string/create_activity_title"
-            android:parentActivityName=".activity.MainActivity" />
+            android:parentActivityName=".activity.LoginActivity" />
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
