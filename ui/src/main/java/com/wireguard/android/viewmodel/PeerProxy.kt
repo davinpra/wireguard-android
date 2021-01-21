@@ -18,6 +18,7 @@ import com.wireguard.config.Peer
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 import java.util.LinkedHashSet
+import kotlin.jvm.Throws
 
 class PeerProxy : BaseObservable, Parcelable {
     private val dnsRoutes: MutableList<String?> = ArrayList()

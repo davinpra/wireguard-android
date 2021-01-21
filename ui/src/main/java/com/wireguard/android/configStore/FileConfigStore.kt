@@ -15,6 +15,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.charset.StandardCharsets
+import kotlin.jvm.Throws
 
 /**
  * Configuration store that uses a `wg-quick`-style file for each configured tunnel.

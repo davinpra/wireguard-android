@@ -17,6 +17,7 @@ import com.wireguard.config.Interface
 import com.wireguard.crypto.Key
 import com.wireguard.crypto.KeyFormatException
 import com.wireguard.crypto.KeyPair
+import kotlin.jvm.Throws
 
 class InterfaceProxy : BaseObservable, Parcelable {
     @get:Bindable

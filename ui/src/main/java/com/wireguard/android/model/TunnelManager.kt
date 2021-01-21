@@ -109,8 +109,12 @@ class TunnelManager(private val configStore: ConfigStore) : BaseObservable() {
     }
 
     private fun onTunnelsLoaded(present: Iterable<String>, running: Collection<String>) {
-        for (name in present)
+
+        for (name in present){
             addToList(name, null, if (running.contains(name)) Tunnel.State.UP else Tunnel.State.DOWN)
+            Log.e("cuk","nama "+name)
+        }
+
         applicationScope.launch {
             val lastUsedName = UserKnobs.lastUsedTunnel.first()
             if (lastUsedName != null)

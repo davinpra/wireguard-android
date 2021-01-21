@@ -75,10 +75,6 @@ class SettingsActivity : ThemeChangeAwareActivity() {
                     wgQuickOnlyPrefs.forEach { it.parent?.removePreference(it) }
                 }
             }
-            preferenceManager.findPreference<Preference>("log_viewer")?.setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), LogViewerActivity::class.java))
-                true
-            }
             val moduleInstaller = preferenceManager.findPreference<Preference>("module_downloader")
             val kernelModuleDisabler = preferenceManager.findPreference<Preference>("kernel_module_disabler")
             moduleInstaller?.isVisible = false

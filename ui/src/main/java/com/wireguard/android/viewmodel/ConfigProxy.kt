@@ -12,6 +12,7 @@ import com.wireguard.config.BadConfigException
 import com.wireguard.config.Config
 import com.wireguard.config.Peer
 import java.util.ArrayList
+import kotlin.jvm.Throws
 
 class ConfigProxy : Parcelable {
     val `interface`: InterfaceProxy

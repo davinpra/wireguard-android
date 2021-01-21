@@ -20,7 +20,6 @@ import com.wireguard.android.activity.BaseActivity
 import com.wireguard.android.activity.BaseActivity.OnSelectedTunnelChangedListener
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
-import com.wireguard.android.databinding.TunnelDetailFragmentBinding
 import com.wireguard.android.databinding.TunnelListItemBinding
 import com.wireguard.android.model.ObservableTunnel
 import com.wireguard.android.util.ErrorMessages
@@ -60,7 +59,6 @@ abstract class BaseFragment : Fragment(), OnSelectedTunnelChangedListener {
 
     fun setTunnelState(view: View, checked: Boolean) {
         val tunnel = when (val binding = DataBindingUtil.findBinding<ViewDataBinding>(view)) {
-            is TunnelDetailFragmentBinding -> binding.tunnel
             is TunnelListItemBinding -> binding.item
             else -> return
         } ?: return
@@ -91,7 +89,7 @@ abstract class BaseFragment : Fragment(), OnSelectedTunnelChangedListener {
                 val view = view
                 if (view != null)
                     Snackbar.make(view, message, Snackbar.LENGTH_LONG)
-                            .setAnchorView(view.findViewById(R.id.create_fab))
+                            //.setAnchorView(view.findViewById(R.id.create_fab))
                             .show()
                 else
                     Toast.makeText(activity, message, Toast.LENGTH_LONG).show()

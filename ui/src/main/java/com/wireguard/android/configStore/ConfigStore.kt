@@ -5,6 +5,7 @@
 package com.wireguard.android.configStore
 
 import com.wireguard.config.Config
+import kotlin.jvm.Throws
 
 /**
  * Interface for persistent storage providers for WireGuard configurations.

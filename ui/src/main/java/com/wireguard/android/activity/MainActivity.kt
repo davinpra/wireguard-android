@@ -14,8 +14,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import com.wireguard.android.R
-import com.wireguard.android.fragment.TunnelDetailFragment
-import com.wireguard.android.fragment.TunnelEditorFragment
 import com.wireguard.android.model.ObservableTunnel
 
 /**
@@ -55,7 +53,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         actionBar = supportActionBar
-        isTwoPaneLayout = findViewById<View?>(R.id.master_detail_wrapper) != null
         supportFragmentManager.addOnBackStackChangedListener(this)
         onBackStackChanged()
     }
@@ -72,16 +69,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener 
                 onBackPressed()
                 true
             }
-            R.id.menu_action_edit -> {
-                supportFragmentManager.commit {
-                    replace(R.id.detail_container, TunnelEditorFragment())
-                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    addToBackStack(null)
-                }
-                true
-            }
-            // This menu item is handled by the editor fragment.
-            R.id.menu_action_save -> false
             R.id.menu_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
@@ -106,7 +93,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener 
         } else if (backStackEntries == 0) {
             // Create and show a new detail fragment.
             fragmentManager.commit {
-                add(R.id.detail_container, TunnelDetailFragment())
                 setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 addToBackStack(null)
             }

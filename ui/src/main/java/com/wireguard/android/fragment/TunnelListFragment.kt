@@ -24,7 +24,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.integration.android.IntentIntegrator
 import com.wireguard.android.Application
 import com.wireguard.android.R
-import com.wireguard.android.activity.TunnelCreatorActivity
 import com.wireguard.android.databinding.ObservableKeyedRecyclerViewAdapter.RowConfigurationHandler
 import com.wireguard.android.databinding.TunnelListFragmentBinding
 import com.wireguard.android.databinding.TunnelListItemBinding
@@ -77,28 +76,7 @@ class TunnelListFragment : BaseFragment() {
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = TunnelListFragmentBinding.inflate(inflater, container, false)
-        val bottomSheet = AddTunnelsSheet()
         binding?.apply {
-            createFab.setOnClickListener {
-                childFragmentManager.setFragmentResultListener(AddTunnelsSheet.REQUEST_KEY_NEW_TUNNEL, viewLifecycleOwner) { _, bundle ->
-                    when (bundle.getString(AddTunnelsSheet.REQUEST_METHOD)) {
-                        AddTunnelsSheet.REQUEST_CREATE -> {
-                            startActivity(Intent(requireActivity(), TunnelCreatorActivity::class.java))
-                        }
-                        AddTunnelsSheet.REQUEST_IMPORT -> {
-                            tunnelFileImportResultLauncher.launch("*/*")
-                        }
-                        AddTunnelsSheet.REQUEST_SCAN -> {
-                            qrImportResultLauncher.launch(IntentIntegrator(requireActivity())
-                                    .setOrientationLocked(false)
-                                    .setBeepEnabled(false)
-                                    .setPrompt(getString(R.string.qr_code_hint))
-                                    .createScanIntent())
-                        }
-                    }
-                }
-                bottomSheet.show(childFragmentManager, "BOTTOM_SHEET")
-            }
             executePendingBindings()
         }
         return binding!!.root
@@ -167,7 +145,6 @@ class TunnelListFragment : BaseFragment() {
         val binding = binding
         if (binding != null)
             Snackbar.make(binding.mainContainer, message, Snackbar.LENGTH_LONG)
-                    .setAnchorView(binding.createFab)
                     .show()
         else
             Toast.makeText(activity ?: Application.get(), message, Toast.LENGTH_SHORT).show()
@@ -186,41 +163,7 @@ class TunnelListFragment : BaseFragment() {
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                R.id.menu_action_delete -> {
-                    val activity = activity ?: return true
-                    val copyCheckedItems = HashSet(checkedItems)
-                    binding?.createFab?.apply {
-                        visibility = View.VISIBLE
-                        scaleX = 1f
-                        scaleY = 1f
-                    }
-                    activity.lifecycleScope.launch {
-                        try {
-                            val tunnels = Application.getTunnelManager().getTunnels()
-                            val tunnelsToDelete = ArrayList<ObservableTunnel>()
-                            for (position in copyCheckedItems) tunnelsToDelete.add(tunnels[position])
-                            val futures = tunnelsToDelete.map { async(SupervisorJob()) { it.deleteAsync() } }
-                            onTunnelDeletionFinished(futures.awaitAll().size, null)
-                        } catch (e: Throwable) {
-                            onTunnelDeletionFinished(0, e)
-                        }
-                    }
-                    checkedItems.clear()
-                    mode.finish()
-                    true
-                }
-                R.id.menu_action_select_all -> {
-                    lifecycleScope.launch {
-                        val tunnels = Application.getTunnelManager().getTunnels()
-                        for (i in 0 until tunnels.size) {
-                            setItemChecked(i, true)
-                        }
-                    }
-                    true
-                }
-                else -> false
-            }
+            return false
         }
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -228,8 +171,6 @@ class TunnelListFragment : BaseFragment() {
             if (activity != null) {
                 resources = activity!!.resources
             }
-            animateFab(binding?.createFab, false)
-            mode.menuInflater.inflate(R.menu.tunnel_list_action_mode, menu)
             binding?.tunnelList?.adapter?.notifyDataSetChanged()
             return true
         }
@@ -237,7 +178,6 @@ class TunnelListFragment : BaseFragment() {
         override fun onDestroyActionMode(mode: ActionMode) {
             actionMode = null
             resources = null
-            animateFab(binding?.createFab, true)
             checkedItems.clear()
             binding!!.tunnelList.adapter!!.notifyDataSetChanged()
         }

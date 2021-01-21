@@ -32,8 +32,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:nextFocusDown="@id/create_fab"
-            android:nextFocusForward="@id/create_fab"
             android:paddingBottom="@{@dimen/design_fab_size_normal * 1.1f}"
             android:visibility="@{tunnels.size() > 0 ? android.view.View.VISIBLE : android.view.View.GONE}"
             app:configurationHandler="@{rowConfigurationHandler}"
@@ -66,15 +64,6 @@
                 android:text="@string/tunnel_list_placeholder"
                 android:textSize="20sp" />
         </LinearLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/create_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:nextFocusUp="@id/tunnel_list"
-            app:srcCompat="@drawable/ic_action_add_white" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

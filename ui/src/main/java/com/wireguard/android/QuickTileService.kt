@@ -75,6 +75,7 @@ class QuickTileService : TileService() {
     }
 
     override fun onCreate() {
+        Log.e("oncreate","quicktile")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             iconOn = Icon.createWithResource(this, R.drawable.ic_tile)
             iconOff = iconOn
