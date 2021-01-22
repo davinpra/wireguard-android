@@ -14,6 +14,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import kotlin.jvm.Throws
 
@@ -24,10 +25,12 @@ class FileConfigStore(private val context: Context) : ConfigStore {
     @Throws(IOException::class)
     override fun create(name: String, config: Config): Config {
         Log.d(TAG, "Creating configuration for tunnel $name")
-        val file = fileFor(name)
+        /*val file = fileFor(name)
         if (!file.createNewFile())
             throw IOException(context.getString(R.string.config_file_exists_error, file.name))
+
         FileOutputStream(file, false).use { it.write(config.toWgQuickString().toByteArray(StandardCharsets.UTF_8)) }
+         */
         return config
     }
 
@@ -52,7 +55,10 @@ class FileConfigStore(private val context: Context) : ConfigStore {
 
     @Throws(BadConfigException::class, IOException::class)
     override fun load(name: String): Config {
-        FileInputStream(fileFor(name)).use { stream -> return Config.parse(stream) }
+
+        val inputStream: InputStream = ("").byteInputStream()
+        return Config.parse(inputStream)
+        //FileInputStream(fileFor(name)).use { stream -> return Config.parse(stream) }
     }
 
     @Throws(IOException::class)
@@ -70,10 +76,13 @@ class FileConfigStore(private val context: Context) : ConfigStore {
     @Throws(IOException::class)
     override fun save(name: String, config: Config): Config {
         Log.d(TAG, "Saving configuration for tunnel $name")
+        /*
         val file = fileFor(name)
         if (!file.isFile)
             throw FileNotFoundException(context.getString(R.string.config_not_found_error, file.name))
         FileOutputStream(file, false).use { stream -> stream.write(config.toWgQuickString().toByteArray(StandardCharsets.UTF_8)) }
+
+         */
         return config
     }
 

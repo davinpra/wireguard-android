@@ -35,7 +35,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".activity.TunnelToggleActivity"
@@ -45,13 +46,18 @@
         </activity>
 
         <activity
+            android:name=".activity.ChooseServerActivity"
+            android:label="@string/choose_tunnel_title"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".activity.MainActivity" />
 
         <activity
             android:name=".activity.SplashActivity"
-            android:label="@string/create_activity_title">
+            android:label="@string/app_name">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,10 +71,10 @@
         </activity>
         <activity
             android:name=".activity.LoginActivity"
-            android:label="@string/create_activity_title"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
             android:name=".activity.RegisterActivity"
-            android:label="@string/create_activity_title"
+            android:label="@string/register_title"
             android:parentActivityName=".activity.LoginActivity" />
 
         <activity

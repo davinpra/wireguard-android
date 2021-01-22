@@ -5,9 +5,17 @@
 
 package com.wireguard.android
 
+import com.wireguard.android.model.ObservableTunnel
+import kotlinx.coroutines.Deferred
+
 class GeneralString {
     companion object {
         @JvmStatic lateinit var authKey : String
         @JvmStatic var gatewayUrl = "http://68.183.227.131"
+        @JvmStatic
+        lateinit var currTunel :ObservableTunnel
+
+        @JvmStatic
+        fun currTunelInitialized() = ::currTunel.isInitialized
     }
 }
