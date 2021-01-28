@@ -45,6 +45,9 @@ class TunnelManager(private val configStore: ConfigStore) : BaseObservable() {
 
     private fun addToList(name: String, countryCode:String, config: Config?, state: Tunnel.State): ObservableTunnel {
         val tunnel = ObservableTunnel(this, name,countryCode, config, state)
+        if(tunnelMap.containsKey(name)){
+            tunnelMap.remove(tunnelMap[name])
+        }
         tunnelMap.add(tunnel)
         return tunnel
     }
