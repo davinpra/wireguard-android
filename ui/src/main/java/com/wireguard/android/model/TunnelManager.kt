@@ -43,20 +43,16 @@ class TunnelManager(private val configStore: ConfigStore) : BaseObservable() {
     private val tunnelMap: ObservableSortedKeyedArrayList<String, ObservableTunnel> = ObservableSortedKeyedArrayList(TunnelComparator)
     private var haveLoaded = false
 
-    private fun addToList(name: String, config: Config?, state: Tunnel.State): ObservableTunnel {
-        val tunnel = ObservableTunnel(this, name, config, state)
+    private fun addToList(name: String, countryCode:String, config: Config?, state: Tunnel.State): ObservableTunnel {
+        val tunnel = ObservableTunnel(this, name,countryCode, config, state)
         tunnelMap.add(tunnel)
         return tunnel
     }
 
     suspend fun getTunnels(): ObservableSortedKeyedArrayList<String, ObservableTunnel> = tunnels.await()
 
-    suspend fun create(name: String, config: Config?): ObservableTunnel = withContext(Dispatchers.Main.immediate) {
-        if (Tunnel.isNameInvalid(name))
-            throw IllegalArgumentException(context.getString(R.string.tunnel_error_invalid_name))
-        if (tunnelMap.containsKey(name))
-            throw IllegalArgumentException(context.getString(R.string.tunnel_error_already_exists, name))
-        addToList(name, withContext(Dispatchers.IO) { configStore.create(name, config!!) }, Tunnel.State.DOWN)
+    suspend fun create(name: String, countryCode:String, config: Config?): ObservableTunnel = withContext(Dispatchers.Main.immediate) {
+        addToList(name, countryCode,withContext(Dispatchers.IO) { configStore.create(name, config!!) }, Tunnel.State.DOWN)
     }
 
     suspend fun delete(tunnel: ObservableTunnel) = withContext(Dispatchers.Main.immediate) {
@@ -111,7 +107,7 @@ class TunnelManager(private val configStore: ConfigStore) : BaseObservable() {
     private fun onTunnelsLoaded(present: Iterable<String>, running: Collection<String>) {
 
         for (name in present){
-            addToList(name, null, if (running.contains(name)) Tunnel.State.UP else Tunnel.State.DOWN)
+            addToList(name,name, null, if (running.contains(name)) Tunnel.State.UP else Tunnel.State.DOWN)
             Log.e("cuk","nama "+name)
         }
 
@@ -163,11 +159,7 @@ class TunnelManager(private val configStore: ConfigStore) : BaseObservable() {
     }
 
     suspend fun setTunnelName(tunnel: ObservableTunnel, name: String): String = withContext(Dispatchers.Main.immediate) {
-        if (Tunnel.isNameInvalid(name))
-            throw IllegalArgumentException(context.getString(R.string.tunnel_error_invalid_name))
-        if (tunnelMap.containsKey(name)) {
-            throw IllegalArgumentException(context.getString(R.string.tunnel_error_already_exists, name))
-        }
+        
         val originalState = tunnel.state
         val wasLastUsed = tunnel == lastUsedTunnel
         // Make sure nothing touches the tunnel.

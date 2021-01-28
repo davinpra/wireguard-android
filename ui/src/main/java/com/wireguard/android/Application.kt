@@ -20,6 +20,7 @@ import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.WgQuickBackend
 import com.wireguard.android.configStore.FileConfigStore
 import com.wireguard.android.model.TunnelManager
+import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ModuleLoader
 import com.wireguard.android.util.RootShell
 import com.wireguard.android.util.ToolsInstaller
@@ -111,6 +112,7 @@ class Application : android.app.Application() {
         }
         tunnelManager = TunnelManager(FileConfigStore(applicationContext))
         tunnelManager.onCreate()
+        Countries.loadBitmaps()
         coroutineScope.launch(Dispatchers.IO) {
             try {
                 backend = determineBackend()

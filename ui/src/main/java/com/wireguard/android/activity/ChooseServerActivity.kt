@@ -7,6 +7,7 @@ package com.wireguard.android.activity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.wireguard.android.Application
@@ -32,6 +33,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Throws
 
 class ChooseServerActivity : AppCompatActivity(), CoroutineScope {
 
@@ -77,7 +79,7 @@ class ChooseServerActivity : AppCompatActivity(), CoroutineScope {
                             val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
                             try {
                                 launch {
-                                    GeneralString.currTunel = Application.getTunnelManager().create("curr", Config.parse(inputStream))
+                                    Application.getTunnelManager().create("best","best", Config.parse(inputStream))
                                 }
                             } catch (e: Throwable) {
                                 ShowToast(this@ChooseServerActivity, "Request Failed." + e.message, Toast.LENGTH_LONG)
@@ -105,15 +107,4 @@ class ChooseServerActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    fun HardTest(){
-        var tunel = "[Interface]\nPrivateKey= uL8bQDgD3gML1fydK2DQzx7UqJp0FiyaXcVvt34Omn0=\nAddress= 10.200.200.0/32\nDNS= 8.8.8.8\n\n[Peer]\nPublicKey= lRCBsEqSTl8ZgK4di+S63PdbMUOF+0yQ74+xNMaMlzs=\n\nAllowedIPs= 0.0.0.0/0, ::/0\nEndpoint= 134.209.102.182:51820\nPersistentKeepalive= 21\n"
-        val inputStream: InputStream = tunel.byteInputStream()
-        try {
-            launch {
-                GeneralString.currTunel = Application.getTunnelManager().create("curr", Config.parse(inputStream))
-            }
-        } catch (e: Throwable) {
-            ShowToast(this@ChooseServerActivity, "Request Failed." + e.message, Toast.LENGTH_LONG)
-        }
-    }
 }

@@ -23,13 +23,14 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.integration.android.IntentIntegrator
 import com.wireguard.android.Application
+import com.wireguard.android.GeneralString
 import com.wireguard.android.R
 import com.wireguard.android.databinding.ObservableKeyedRecyclerViewAdapter.RowConfigurationHandler
 import com.wireguard.android.databinding.TunnelListFragmentBinding
 import com.wireguard.android.databinding.TunnelListItemBinding
 import com.wireguard.android.model.ObservableTunnel
+import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ErrorMessages
-import com.wireguard.android.util.TunnelImporter
 import com.wireguard.android.widget.MultiselectableRelativeLayout
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -45,22 +46,6 @@ class TunnelListFragment : BaseFragment() {
     private val actionModeListener = ActionModeListener()
     private var actionMode: ActionMode? = null
     private var binding: TunnelListFragmentBinding? = null
-    private val tunnelFileImportResultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { data ->
-        if (data == null) return@registerForActivityResult
-        val activity = activity ?: return@registerForActivityResult
-        val contentResolver = activity.contentResolver ?: return@registerForActivityResult
-        activity.lifecycleScope.launch {
-            TunnelImporter.importTunnel(contentResolver, data) { showSnackbar(it) }
-        }
-    }
-
-    private val qrImportResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val qrCode = IntentIntegrator.parseActivityResult(result.resultCode, result.data)?.contents
-                ?: return@registerForActivityResult
-        val activity = activity ?: return@registerForActivityResult
-        val fragManager = parentFragmentManager
-        activity.lifecycleScope.launch { TunnelImporter.importTunnel(fragManager, qrCode) { showSnackbar(it) } }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,25 +103,27 @@ class TunnelListFragment : BaseFragment() {
         super.onViewStateRestored(savedInstanceState)
         binding ?: return
         binding!!.fragment = this
-        lifecycleScope.launch { binding!!.tunnels = Application.getTunnelManager().getTunnels() }
+        lifecycleScope.launch {
+            Log.e("item", "cuk ini get  ")
+            binding!!.tunnels = Application.getTunnelManager().getTunnels()
+            Log.e("item", "coount  "+binding?.tunnels?.size)
+        }
+
+        Log.e("item", "coount  "+binding?.tunnels?.size)
         binding!!.rowConfigurationHandler = object : RowConfigurationHandler<TunnelListItemBinding, ObservableTunnel> {
             override fun onConfigureRow(binding: TunnelListItemBinding, item: ObservableTunnel, position: Int) {
+                Log.e("item", "ini "+item.name)
                 binding.fragment = this@TunnelListFragment
+                binding.tunnelName.text = Countries.values[item.getCountryCode()]?.name?:"";
+                binding.flagImg.setImageBitmap(Countries.bitmaps[item.getCountryCode()])
                 binding.root.setOnClickListener {
-                    if (actionMode == null) {
-                        selectedTunnel = item
-                    } else {
-                        actionModeListener.toggleItemChecked(position)
-                    }
+                    Log.e("item", "item ditap cuk")
+                    GeneralString.currTunel = item
+                    activity?.onBackPressed()
                 }
-                binding.root.setOnLongClickListener {
-                    actionModeListener.toggleItemChecked(position)
-                    true
+                if(GeneralString.currTunelInitialized()){
+                    (binding.root as MultiselectableRelativeLayout).setMultiSelected(GeneralString.currTunel.name == item.name)
                 }
-                if (actionMode != null)
-                    (binding.root as MultiselectableRelativeLayout).setMultiSelected(actionModeListener.checkedItems.contains(position))
-                else
-                    (binding.root as MultiselectableRelativeLayout).setSingleSelected(selectedTunnel == item)
             }
         }
     }

@@ -111,7 +111,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         val connectBtn = findViewById<Button>(R.id.connect_btn)
         connectBtn.setOnClickListener(View.OnClickListener {
             if (System.currentTimeMillis() < lastConnectClick + 1000) {
-                ShowToast(this@MainActivity, "You tapped too fast, please wait", Toast.LENGTH_LONG)
+                ShowToast(this@MainActivity, "You tap too fast, please wait", Toast.LENGTH_LONG)
                 return@OnClickListener
             }
             lastConnectClick = System.currentTimeMillis()
