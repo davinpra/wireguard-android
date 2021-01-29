@@ -4,27 +4,24 @@
  */
 package com.wireguard.android.activity
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.service.quicksettings.TileService
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.navigation.NavigationView
 import com.wireguard.android.Application
 import com.wireguard.android.GeneralString
-import com.wireguard.android.QuickTileService
 import com.wireguard.android.R
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
@@ -35,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+
 
 /**
  * CRUD interface for WireGuard tunnels. This activity serves as the main entry point to the
@@ -104,7 +102,35 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        actionBar = supportActionBar
+
+
+        // As we're using a Toolbar, we should retrieve it and set it
+        // to be our ActionBar
+        val toolbar = findViewById<Toolbar>(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
+        // Now retrieve the DrawerLayout so that we can set the status bar color.
+        // This only takes effect on Lollipop, or when using translucentStatusBar
+        // on KitKat.
+        val drawerLayout = findViewById<DrawerLayout>(R.id.main_activity_container);
+        drawerLayout.setStatusBarBackgroundColor(resources.getColor(R.color.secondary_color));
+        val navView = findViewById<NavigationView>(R.id.nav_view);
+        navView.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
+            drawerLayout.closeDrawers()
+            menuItem.isChecked = true
+            when (menuItem.itemId) {
+                R.id.feedback_menu_item -> {
+                }
+                R.id.share_menu_item -> {
+                }
+                R.id.setting_menu_item -> {
+                }
+                R.id.faq_menu_item -> {
+                }
+            }
+            true
+        })
+
         supportFragmentManager.addOnBackStackChangedListener(this)
         onBackStackChanged()
 
@@ -115,7 +141,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 return@OnClickListener
             }
             lastConnectClick = System.currentTimeMillis()
-            if(GeneralString.currTunelInitialized()){
+            if (GeneralString.currTunelInitialized()) {
                 launch {
                     if (Application.getBackend() is GoBackend) {
                         val intent = GoBackend.VpnService.prepare(this@MainActivity)
@@ -127,26 +153,17 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                     toggleTunnelWithPermissionsResult()
                     //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
                     GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
-                    if(GeneralString.currTunel.state.equals(Tunnel.State.UP)){
-                        connectBtn.text= getString(R.string.btn_txt_connected)
+                    if (GeneralString.currTunel.state.equals(Tunnel.State.UP)) {
+                        connectBtn.text = getString(R.string.btn_txt_connected)
                         //connectBtn.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.secondary_color)))
-                    }else{
-                        connectBtn.text= getString(R.string.btn_txt_connect)
+                    } else {
+                        connectBtn.text = getString(R.string.btn_txt_connect)
                         //connectBtn.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.primary_color)))
                     }
                 }
-            }else{
+            } else {
                 ShowToast(this@MainActivity, "Please choose a server.", Toast.LENGTH_LONG)
             }
-        })
-
-        val chooseServerBtn = findViewById<Button>(R.id.choose_server_btn)
-        chooseServerBtn.setOnClickListener(View.OnClickListener {
-            if (System.currentTimeMillis() < lastServerClick + 2000) {
-                return@OnClickListener
-            }
-            lastServerClick = System.currentTimeMillis()
-            startActivity(Intent(this@MainActivity, ChooseServerActivity::class.java))
         })
     }
 
@@ -158,11 +175,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_activity, menu)
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -170,10 +182,16 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 onBackPressed()
                 true
             }
+            /*
             R.id.menu_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
+            R.id.choose_server_btn -> {
+                startActivity(Intent(this, ChooseServerActivity::class.java))
+                true
+            }
+             */
             else -> super.onOptionsItemSelected(item)
         }
     }
