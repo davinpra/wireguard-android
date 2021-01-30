@@ -23,7 +23,6 @@
         <item name="materialCardViewStyle">@style/AppTheme.MaterialCardView</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-
     </style>
 
     <style name="AppTheme.MaterialCardView" parent="Widget.MaterialComponents.CardView">

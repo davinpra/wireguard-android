@@ -4,16 +4,20 @@
  */
 package com.wireguard.android.activity
 
+import android.R.attr.bitmap
 import android.content.Context
+import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -26,6 +30,7 @@ import com.wireguard.android.R
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
 import com.wireguard.android.model.ObservableTunnel
+import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ErrorMessages
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +47,8 @@ import kotlin.coroutines.CoroutineContext
 class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener, CoroutineScope {
     private val permissionActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { toggleTunnelWithPermissionsResult() }
 
-    private var actionBar: ActionBar? = null
+    private lateinit var drawerLayout: DrawerLayout
+    private var actionBar: Toolbar? = null
     private var isTwoPaneLayout = false
 
     private var job: Job = Job()
@@ -93,7 +99,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         // Do not show the home menu when the two-pane layout is at the detail view (see above).
         val backStackEntries = supportFragmentManager.backStackEntryCount
         val minBackStackEntries = if (isTwoPaneLayout) 2 else 1
-        actionBar!!.setDisplayHomeAsUpEnabled(backStackEntries >= minBackStackEntries)
+        //actionBar!!.setDisplayHomeAsUpEnabled(backStackEntries >= minBackStackEntries)
     }
     var lastConnectClick : Long = 0
     var lastServerClick : Long = 0
@@ -103,16 +109,21 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-
         // As we're using a Toolbar, we should retrieve it and set it
         // to be our ActionBar
-        val toolbar = findViewById<Toolbar>(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
+
+        actionBar = findViewById<Toolbar>(R.id.main_toolbar);
+        setSupportActionBar(actionBar);
+        supportActionBar?.let { ab ->
+            ab.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
+            ab.setTitle("VPN Apps");
+            ab.setDisplayHomeAsUpEnabled(true)
+        }
 
         // Now retrieve the DrawerLayout so that we can set the status bar color.
         // This only takes effect on Lollipop, or when using translucentStatusBar
         // on KitKat.
-        val drawerLayout = findViewById<DrawerLayout>(R.id.main_activity_container);
+        drawerLayout = findViewById<DrawerLayout>(R.id.main_activity_container);
         drawerLayout.setStatusBarBackgroundColor(resources.getColor(R.color.secondary_color));
         val navView = findViewById<NavigationView>(R.id.nav_view);
         navView.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
@@ -130,6 +141,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
             }
             true
         })
+
 
         supportFragmentManager.addOnBackStackChangedListener(this)
         onBackStackChanged()
@@ -167,6 +179,20 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         })
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        menu.findItem(R.id.choose_server_btn).setIcon(BitmapDrawable(resources, Countries.bitmaps["best"]))
+        return true
+    }
+
+    private fun setupDrawerContent(navigationView: NavigationView) {
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            menuItem.isChecked = true
+            drawerLayout.closeDrawers()
+            true
+        }
+    }
+
     fun ShowToast(context: Context?, txt: String?, time: Int) {
         runOnUiThread {
             Toast.makeText(context,
@@ -179,20 +205,15 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         return when (item.itemId) {
             android.R.id.home -> {
                 // The back arrow in the action bar should act the same as the back button.
-                onBackPressed()
-                true
-            }
-            /*
-            R.id.menu_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                drawerLayout.openDrawer(GravityCompat.START)
                 true
             }
             R.id.choose_server_btn -> {
                 startActivity(Intent(this, ChooseServerActivity::class.java))
                 true
             }
-             */
             else -> super.onOptionsItemSelected(item)
+
         }
     }
 

@@ -23,7 +23,5 @@
         <item name="textInputStyle">@style/TextInputLayoutBase</item>
         <item name="materialCardViewStyle">@style/AppTheme.MaterialCardView</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
 </resources>
