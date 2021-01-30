@@ -55,6 +55,7 @@
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>
     </plurals>
+    <string name="login_title">Login</string>
     <string name="register_title">Register</string>
     <string name="choose_tunnel_title">Choose Server</string>
     <string name="use_all_applications">Use all apps</string>

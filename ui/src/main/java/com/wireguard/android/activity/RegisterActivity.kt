@@ -36,10 +36,6 @@ class RegisterActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-        val toolbar = findViewById<View>(R.id.toolbarRegister) as Toolbar
-        setSupportActionBar(toolbar)
-        toolbar.setNavigationOnClickListener { onBackPressed() }
-
         val registerBtn = findViewById<Button>(R.id.RegisterBtn)
         registerBtn.setOnClickListener(View.OnClickListener {
             if (System.currentTimeMillis() < lastRegisterClick + 2000) {

@@ -11,6 +11,10 @@
     <color name="secondary_text_color">#ffffffff</color>
 
     <color name="tertiary_color">#ffb347</color>
+    <color name="tertiary_dark_color">#ea9367</color>
+    <color name="quinary_color">#fddd96</color>
+
+    <color name="gray">#cccccc</color>
 
     <!-- Theme variables -->
     <color name="color_control_normal">@color/primary_text_color</color>

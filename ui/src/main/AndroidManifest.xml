@@ -47,7 +47,8 @@
         <activity
             android:name=".activity.ChooseServerActivity"
             android:label="@string/choose_tunnel_title"
-            android:parentActivityName=".activity.MainActivity" />
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/SecondaryColorActionBarTheme" />
 
         <activity
             android:name=".activity.SettingsActivity"
@@ -73,8 +74,9 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
             android:name=".activity.RegisterActivity"
-            android:label="@string/register_title"
-            android:parentActivityName=".activity.LoginActivity" />
+            android:label=""
+            android:parentActivityName=".activity.LoginActivity"
+            android:theme="@style/TransparentActionBarTheme"/>
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
