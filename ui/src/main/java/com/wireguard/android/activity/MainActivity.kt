@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
@@ -32,11 +33,24 @@ import com.wireguard.android.backend.Tunnel
 import com.wireguard.android.model.ObservableTunnel
 import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ErrorMessages
+import com.wireguard.config.Config
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.io.InputStream
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Throws
 
 
 /**
@@ -50,6 +64,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     private lateinit var drawerLayout: DrawerLayout
     private var actionBar: Toolbar? = null
     private var isTwoPaneLayout = false
+    private lateinit var currSelectedTunnelTxt : TextView
 
     private var job: Job = Job()
 
@@ -107,8 +122,17 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
 
+        if (!GeneralString.currTunelInitialized()) {
+            GetBestServer()
+        }
+
+        setContentView(R.layout.main_activity)
+        currSelectedTunnelTxt = findViewById(R.id.curr_selected_tunnel_name_txt)
+
+        if (GeneralString.currTunelInitialized()) {
+            currSelectedTunnelTxt.text = GeneralString.currTunel.name
+        }
         // As we're using a Toolbar, we should retrieve it and set it
         // to be our ActionBar
 
@@ -237,5 +261,48 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 addToBackStack(null)
             }
         }
+    }
+
+    fun GetBestServer(){
+
+        val builder = OkHttpClient.Builder()
+        val client = builder.build()
+        val requestBody: RequestBody = FormBody.Builder()
+                .build()
+        val request: Request = Request.Builder()
+                .header("Authorization", "Bearer " + GeneralString.authKey)
+                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels")
+                .post(requestBody)
+                .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+
+            }
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    if (response.isSuccessful) {
+                        val responseString = response.body()!!.string()
+                        val resp = JSONObject(responseString)
+                        if (resp.getBoolean("success")) {
+                            val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
+                            try {
+                                launch {
+                                    GeneralString.currTunel = Application.getTunnelManager().create("Best","best", Config.parse(inputStream))
+                                    currSelectedTunnelTxt.text = GeneralString.currTunel.name
+                                }
+                            } catch (e: Throwable) {
+
+                            }
+                        }
+                    }
+                } catch (e: IOException) {
+
+                } catch (e: JSONException) {
+
+                }
+            }
+        })
     }
 }

@@ -4,11 +4,13 @@
     <color name="primary_color">#ffffffff</color>
     <color name="primary_light_color">#ffffffff</color>
     <color name="primary_dark_color">#ffcccccc</color>
-    <color name="secondary_color">#ff1a73e8</color>
+    <color name="secondary_color">#00b4ee</color>
     <color name="secondary_light_color">#ff1a73e8</color>
     <color name="secondary_dark_color">#ff1a73e8</color>
     <color name="primary_text_color">#ff000000</color>
     <color name="secondary_text_color">#ffffffff</color>
+
+    <color name="tertiary_color">#ffb347</color>
 
     <!-- Theme variables -->
     <color name="color_control_normal">@color/primary_text_color</color>

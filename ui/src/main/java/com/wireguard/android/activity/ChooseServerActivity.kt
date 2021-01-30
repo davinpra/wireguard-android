@@ -79,7 +79,7 @@ class ChooseServerActivity : AppCompatActivity(), CoroutineScope {
                             val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
                             try {
                                 launch {
-                                    Application.getTunnelManager().create("best","best", Config.parse(inputStream))
+                                    Application.getTunnelManager().create("Best","best", Config.parse(inputStream))
                                 }
                             } catch (e: Throwable) {
                                 ShowToast(this@ChooseServerActivity, "Request Failed." + e.message, Toast.LENGTH_LONG)

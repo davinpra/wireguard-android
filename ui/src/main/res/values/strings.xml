@@ -231,4 +231,5 @@
     <string name="biometric_auth_error_reason">Authentication failure: %s</string>
     <string name="btn_txt_connected">Connected!</string>
     <string name="btn_txt_connect">Connect</string>
+    <string name="current_label">Selected Server:</string>
 </resources>

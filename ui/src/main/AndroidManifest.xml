@@ -39,11 +39,8 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".activity.TunnelToggleActivity"
-            android:theme="@style/NoBackgroundTheme" />
-
-        <activity
             android:name=".activity.MainActivity"
+            android:theme="@style/NoAppbarTheme"
             >
         </activity>
 

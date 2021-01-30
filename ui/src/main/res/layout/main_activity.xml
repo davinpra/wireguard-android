@@ -17,20 +17,22 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/main_toolbar"
-            android:layout_height="?attr/actionBarSize"
+        android:layout_height="match_parent"
+        android:background="@drawable/main_bg_circle">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            android:background="?attr/colorSecondary"
-            />
-    </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="wrap_content"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/main_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorSecondary"
+                app:layout_scrollFlags="scroll|enterAlways|snap" />
+        </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,10 +44,27 @@
                 android:id="@+id/connect_btn"
                 android:layout_width="220dp"
                 android:layout_height="220dp"
-                android:background = "@drawable/round_button"
-                android:textSize="15dp"
-                app:backgroundTint="@color/design_default_color_surface"
-                android:text="Connect" />
+                android:background="@drawable/round_button"
+                android:textColor="@color/primary_color"
+                android:text="Connect"
+                android:textSize="18sp"
+                app:backgroundTint="@color/secondary_color" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:text="@string/current_label"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/curr_selected_tunnel_name_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Selected Server"
+                android:textSize="21sp" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
     <com.google.android.material.navigation.NavigationView
@@ -55,6 +74,8 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_drawer_header_layout"
-        app:menu="@menu/nav_drawer_menu" />
+        app:menu="@menu/nav_drawer_menu" >
+
+    </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>
