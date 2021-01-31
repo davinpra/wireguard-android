@@ -4,7 +4,6 @@
  */
 package com.wireguard.android.activity
 
-import android.R.attr.bitmap
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
@@ -50,7 +49,6 @@ import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Throws
 
 
 /**
@@ -94,19 +92,8 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     }
 
     override fun onBackPressed() {
-        val backStackEntries = supportFragmentManager.backStackEntryCount
-        // If the two-pane layout does not have an editor open, going back should exit the app.
-        if (isTwoPaneLayout && backStackEntries <= 1) {
-            finish()
-            return
-        }
-        // Deselect the current tunnel on navigating back from the detail pane to the one-pane list.
-        if (!isTwoPaneLayout && backStackEntries == 1) {
-            supportFragmentManager.popBackStack()
-            selectedTunnel = null
-            return
-        }
-        super.onBackPressed()
+        finishAffinity();
+        finish();
     }
 
     override fun onBackStackChanged() {
@@ -152,13 +139,20 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         val navView = findViewById<NavigationView>(R.id.nav_view);
         navView.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
-            menuItem.isChecked = true
+            //menuItem.isChecked = true
             when (menuItem.itemId) {
                 R.id.feedback_menu_item -> {
                 }
                 R.id.share_menu_item -> {
+
+                    val sharingIntent = Intent(Intent.ACTION_SEND)
+                    sharingIntent.type = "text/plain"
+                    val shareBody = R.string.share_txt
+                    sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+                    startActivity(Intent.createChooser(sharingIntent, "Share using"))
                 }
                 R.id.setting_menu_item -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
                 R.id.faq_menu_item -> {
                 }
@@ -207,14 +201,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         menu.findItem(R.id.choose_server_btn).setIcon(BitmapDrawable(resources, Countries.bitmaps["best"]))
         return true
-    }
-
-    private fun setupDrawerContent(navigationView: NavigationView) {
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            menuItem.isChecked = true
-            drawerLayout.closeDrawers()
-            true
-        }
     }
 
     fun ShowToast(context: Context?, txt: String?, time: Int) {
@@ -279,6 +265,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
             override fun onFailure(call: Call, e: IOException) {
 
             }
+
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 try {
@@ -289,7 +276,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                             val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
                             try {
                                 launch {
-                                    GeneralString.currTunel = Application.getTunnelManager().create("Best","best", Config.parse(inputStream))
+                                    GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
                                     currSelectedTunnelTxt.text = GeneralString.currTunel.name
                                 }
                             } catch (e: Throwable) {

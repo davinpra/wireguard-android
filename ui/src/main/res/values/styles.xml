@@ -83,18 +83,12 @@
 
     <style name="SecondaryColorActionBarTheme" parent="AppTheme">
         <item name="actionBarTheme">@style/SecondaryColorActionBar</item>
-        <item name="actionMenuTextColor">@color/white</item>
-        <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
 
-    <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar" >
-        <item name="android:titleTextStyle">@style/WhiteActionBarText</item>
-    </style>
-
-    <style name="SecondaryColorActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+    <style name="SecondaryColorActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar.Primary">
         <item name="colorControlNormal">@color/white</item>
         <item name="android:background">@color/secondary_color</item>
-        <item name="android:titleTextStyle">@style/WhiteActionBarText</item>
+        <item name="android:textColorPrimary">@color/white</item>
     </style>
 
     <style name="TransparentActionBarTheme" parent="Theme.AppCompat.Light">
@@ -111,12 +105,7 @@
         <item name="colorControlNormal">@color/white</item>
     </style>
 
-    <style name="WhiteActionBarText" parent="Widget.AppCompat.ActionBar">
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="TransparentActionBar"
-        parent="Widget.AppCompat.Light.ActionBar">
+    <style name="TransparentActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <item name="android:background">@null</item>
         <!-- Support library compatibility -->
         <item name="background">@null</item>

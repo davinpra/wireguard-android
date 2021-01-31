@@ -15,6 +15,7 @@
     <color name="quinary_color">#fddd96</color>
 
     <color name="gray">#cccccc</color>
+    <color name="dark_gray">#444444</color>
 
     <!-- Theme variables -->
     <color name="color_control_normal">@color/primary_text_color</color>

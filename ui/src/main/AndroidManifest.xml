@@ -53,7 +53,8 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/settings"
-            android:parentActivityName=".activity.MainActivity" />
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/SecondaryColorActionBarTheme" />
 
         <activity
             android:name=".activity.SplashActivity"
@@ -77,11 +78,6 @@
             android:label=""
             android:parentActivityName=".activity.LoginActivity"
             android:theme="@style/TransparentActionBarTheme"/>
-
-        <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="fullSensor"
-            tools:replace="screenOrientation" />
 
         <receiver android:name=".BootShutdownReceiver">
             <intent-filter>
