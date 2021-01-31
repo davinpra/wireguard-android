@@ -141,8 +141,6 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
             drawerLayout.closeDrawers()
             //menuItem.isChecked = true
             when (menuItem.itemId) {
-                R.id.feedback_menu_item -> {
-                }
                 R.id.share_menu_item -> {
 
                     val sharingIntent = Intent(Intent.ACTION_SEND)
@@ -155,6 +153,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }
                 R.id.faq_menu_item -> {
+                    startActivity(Intent(this, FAQActivity::class.java))
                 }
             }
             true

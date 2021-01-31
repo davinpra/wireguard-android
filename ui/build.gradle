@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 version wireguardVersionName
 group groupName
@@ -74,6 +75,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation 'com.wireguard.android:tunnel:1.0.20201224'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation 'com.beust:klaxon:5.0.1'
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarVersion"
 }
 
