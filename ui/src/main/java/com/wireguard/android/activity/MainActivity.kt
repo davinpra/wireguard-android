@@ -8,12 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
+import android.widget.Chronometer.OnChronometerTickListener
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
@@ -33,6 +33,7 @@ import com.wireguard.android.model.ObservableTunnel
 import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ErrorMessages
 import com.wireguard.config.Config
+import kotlinx.android.synthetic.main.main_activity.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,7 +63,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     private lateinit var drawerLayout: DrawerLayout
     private var actionBar: Toolbar? = null
     private var isTwoPaneLayout = false
-    private lateinit var currSelectedTunnelTxt : TextView
+    private var connectedDuration : Long = 0;
 
     private var job: Job = Job()
 
@@ -92,8 +93,12 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     }
 
     override fun onBackPressed() {
-        finishAffinity();
-        finish();
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }else{
+            finishAffinity();
+            finish();
+        }
     }
 
     override fun onBackStackChanged() {
@@ -115,15 +120,16 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         }
 
         setContentView(R.layout.main_activity)
-        currSelectedTunnelTxt = findViewById(R.id.curr_selected_tunnel_name_txt)
+        connect_layout.visibility = View.VISIBLE
+        connected_layout.visibility = View.GONE
 
         if (GeneralString.currTunelInitialized()) {
-            currSelectedTunnelTxt.text = GeneralString.currTunel.name
+            curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
         }
         // As we're using a Toolbar, we should retrieve it and set it
         // to be our ActionBar
 
-        actionBar = findViewById<Toolbar>(R.id.main_toolbar);
+        actionBar = main_toolbar;
         setSupportActionBar(actionBar);
         supportActionBar?.let { ab ->
             ab.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
@@ -134,10 +140,9 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         // Now retrieve the DrawerLayout so that we can set the status bar color.
         // This only takes effect on Lollipop, or when using translucentStatusBar
         // on KitKat.
-        drawerLayout = findViewById<DrawerLayout>(R.id.main_activity_container);
+        drawerLayout = main_activity_container;
         drawerLayout.setStatusBarBackgroundColor(resources.getColor(R.color.secondary_color));
-        val navView = findViewById<NavigationView>(R.id.nav_view);
-        navView.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
+        nav_view.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
             //menuItem.isChecked = true
             when (menuItem.itemId) {
@@ -145,7 +150,9 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
 
                     val sharingIntent = Intent(Intent.ACTION_SEND)
                     sharingIntent.type = "text/plain"
-                    val shareBody = R.string.share_txt
+                    val shareBody = resources.getString(R.string.share_txt)
+                    val shareSub = resources.getString(R.string.share_txt)
+                    sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSub)
                     sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
                     startActivity(Intent.createChooser(sharingIntent, "Share using"))
                 }
@@ -158,13 +165,25 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
             }
             true
         })
-
-
+        curr_selected_tunnel_dur.setText("00 : 00 : 00")
+        curr_selected_tunnel_dur.setOnChronometerTickListener(OnChronometerTickListener { chronometer ->
+            val text = chronometer.text
+            if (text.length == 5) {
+                val a = text.toString().split(":".toRegex()).toTypedArray()
+                val min = a[0] + " : "
+                val sec = a[1]
+                chronometer.text = "00 : $min$sec"
+            } else if (text.length == 7) {
+                val a = text.toString().split(":".toRegex()).toTypedArray()
+                val hr = a[0] + " : "
+                val min = a[1] + " : "
+                val sec = a[2]
+                chronometer.text = "0$hr$min$sec"
+            }
+        })
         supportFragmentManager.addOnBackStackChangedListener(this)
         onBackStackChanged()
-
-        val connectBtn = findViewById<Button>(R.id.connect_btn)
-        connectBtn.setOnClickListener(View.OnClickListener {
+        connect_btn.setOnClickListener(View.OnClickListener {
             if (System.currentTimeMillis() < lastConnectClick + 1000) {
                 ShowToast(this@MainActivity, "You tap too fast, please wait", Toast.LENGTH_LONG)
                 return@OnClickListener
@@ -182,16 +201,32 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                     toggleTunnelWithPermissionsResult()
                     //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
                     GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
-                    if (GeneralString.currTunel.state.equals(Tunnel.State.UP)) {
-                        connectBtn.text = getString(R.string.btn_txt_connected)
-                        //connectBtn.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.secondary_color)))
-                    } else {
-                        connectBtn.text = getString(R.string.btn_txt_connect)
-                        //connectBtn.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.primary_color)))
-                    }
+                    connectedDuration = System.currentTimeMillis()
+                    val endpointStr=GeneralString.currTunel.config?.peers?.get(0)?.endpoint.toString()
+                    val finalIP = endpointStr.split("[")[1].split(":")[0]
+                    curr_selected_tunnel_ip_txt.text = finalIP
+                    connect_layout.visibility = View.GONE
+                    connected_layout.visibility = View.VISIBLE
+                    curr_selected_tunnel_dur.setBase(SystemClock.elapsedRealtime());
+                    curr_selected_tunnel_dur.start();
                 }
             } else {
                 ShowToast(this@MainActivity, "Please choose a server.", Toast.LENGTH_LONG)
+            }
+        })
+
+        disconnect_btn.setOnClickListener(View.OnClickListener {
+            if (System.currentTimeMillis() < lastConnectClick + 1000) {
+                ShowToast(this@MainActivity, "You tap too fast, please wait", Toast.LENGTH_LONG)
+                return@OnClickListener
+            }
+            lastConnectClick = System.currentTimeMillis()
+            launch {
+                //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
+                GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
+                connect_layout.visibility = View.VISIBLE
+                connected_layout.visibility = View.GONE
+                curr_selected_tunnel_dur.stop();
             }
         })
     }
@@ -276,7 +311,8 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                             try {
                                 launch {
                                     GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
-                                    currSelectedTunnelTxt.text = GeneralString.currTunel.name
+
+                                    curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
                                 }
                             } catch (e: Throwable) {
 

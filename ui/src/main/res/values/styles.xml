@@ -81,6 +81,10 @@
         </item>
     </style>
 
+    <style name="SecondaryColorActionBarThemeBG" parent="AppTheme">
+        <item name="actionBarTheme">@style/SecondaryColorActionBar</item>
+        <item name="android:background">@color/white</item>
+    </style>
     <style name="SecondaryColorActionBarTheme" parent="AppTheme">
         <item name="actionBarTheme">@style/SecondaryColorActionBar</item>
     </style>

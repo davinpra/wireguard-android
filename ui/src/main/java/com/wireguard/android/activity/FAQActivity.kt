@@ -37,12 +37,22 @@ class FAQAdapter(private val faqdata: List<FAQData>) : RecyclerView.Adapter<FAQD
 }
 
 class FAQDataHolder(view: View) : RecyclerView.ViewHolder(view) {
-    private val faq_title = view.faq_title
-    private val faq_text = view.faq_text
+    private val thisView = view
 
     fun bindFAQ(faqData: FAQData) {
-        faq_title.text = faqData.title
-        faq_text.text = faqData.text
+        thisView.faq_title.text = faqData.title
+        thisView.faq_text.text = faqData.text
+        thisView.faq_icon.setColorFilter(R.color.secondary_color)
+        thisView.faq_text.visibility=View.GONE
+        thisView.setOnClickListener(View.OnClickListener {
+            if(thisView.faq_text.visibility==View.VISIBLE){
+                thisView.faq_icon.setColorFilter(R.color.secondary_color)
+                thisView.faq_text.visibility=View.GONE
+            }else{
+                thisView.faq_icon.setColorFilter(R.color.dark_gray)
+                thisView.faq_text.visibility=View.VISIBLE
+            }
+        })
     }
 }
 
@@ -51,28 +61,12 @@ class FAQActivity: AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_faq)
-        try {
-            var jsonString = applicationContext.assets.open("faq_list.json").bufferedReader().use { it.readText() }
 
-            val klaxon = Klaxon()
-            JsonReader(StringReader(jsonString)).use { reader ->
-                FAQDataList.data = arrayListOf<FAQData>()
-                reader.beginArray {
-                    while (reader.hasNext()) {
-                        var faqData = klaxon.parse<FAQData>(reader)
-                        faqData?.let { FAQDataList.data.add(it) }
-                    }
-                }
-                Log.e("faq", FAQDataList.data.count().toString())
-                val faqAdapter = FAQAdapter(FAQDataList.data)
+        val faqAdapter = FAQAdapter(FAQDataList.data)
 
-                faq_list.apply {
-                    layoutManager = LinearLayoutManager(this@FAQActivity)
-                    adapter = faqAdapter
-                }
-            }
-        } catch (ioException: IOException) {
-            ioException.printStackTrace()
+        faq_list.apply {
+            layoutManager = LinearLayoutManager(this@FAQActivity)
+            adapter = faqAdapter
         }
 
 

@@ -233,6 +233,8 @@
     <string name="btn_txt_connected">Connected!</string>
     <string name="btn_txt_connect">Connect</string>
     <string name="current_label">Selected Server:</string>
+    <string name="curr_server_label">Server IP</string>
+    <string name="curr_dur_label">Duration</string>
 
     <string name="share_txt">Try this VPN Apps!</string>
     <string name="FAQ">Frequently Asked Questions</string>

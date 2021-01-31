@@ -15,10 +15,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.createDataStore
+import com.beust.klaxon.JsonReader
+import com.beust.klaxon.Klaxon
 import com.wireguard.android.backend.Backend
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.WgQuickBackend
 import com.wireguard.android.configStore.FileConfigStore
+import com.wireguard.android.model.FAQData
+import com.wireguard.android.model.FAQDataList
 import com.wireguard.android.model.TunnelManager
 import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ModuleLoader
@@ -35,6 +39,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.io.StringReader
 import java.lang.ref.WeakReference
 import java.util.Locale
 
@@ -98,6 +104,7 @@ class Application : android.app.Application() {
     override fun onCreate() {
         Log.i(TAG, USER_AGENT)
         super.onCreate()
+        loadFAQ()
         rootShell = RootShell(applicationContext)
         toolsInstaller = ToolsInstaller(applicationContext, rootShell)
         moduleLoader = ModuleLoader(applicationContext, rootShell, USER_AGENT)
@@ -120,6 +127,25 @@ class Application : android.app.Application() {
             } catch (e: Throwable) {
                 Log.e(TAG, Log.getStackTraceString(e))
             }
+        }
+    }
+
+    fun loadFAQ(){
+        try {
+            var jsonString = applicationContext.assets.open("faq_list.json").bufferedReader().use { it.readText() }
+
+            val klaxon = Klaxon()
+            JsonReader(StringReader(jsonString)).use { reader ->
+                FAQDataList.data = arrayListOf<FAQData>()
+                reader.beginArray {
+                    while (reader.hasNext()) {
+                        var faqData = klaxon.parse<FAQData>(reader)
+                        faqData?.let { FAQDataList.data.add(it) }
+                    }
+                }
+            }
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
         }
     }
 
