@@ -133,7 +133,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         setSupportActionBar(actionBar);
         supportActionBar?.let { ab ->
             ab.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
-            ab.setTitle("VPN Apps");
+            ab.setTitle(resources.getString(R.string.app_name));
             ab.setDisplayHomeAsUpEnabled(true)
         }
 
@@ -281,6 +281,51 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 addToBackStack(null)
             }
         }
+    }
+
+    fun disconnectRequest(){
+
+        val builder = OkHttpClient.Builder()
+        val client = builder.build()
+        val requestBody: RequestBody = FormBody.Builder()
+                .build()
+        val request: Request = Request.Builder()
+                .header("Authorization", "Bearer " + GeneralString.authKey)
+                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels")
+                .post(requestBody)
+                .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    if (response.isSuccessful) {
+                        val responseString = response.body()!!.string()
+                        val resp = JSONObject(responseString)
+                        if (resp.getBoolean("success")) {
+                            val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
+                            try {
+                                launch {
+                                    GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
+
+                                    curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
+                                }
+                            } catch (e: Throwable) {
+
+                            }
+                        }
+                    }
+                } catch (e: IOException) {
+
+                } catch (e: JSONException) {
+
+                }
+            }
+        })
     }
 
     fun GetBestServer(){
