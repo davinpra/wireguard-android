@@ -12,6 +12,9 @@ class GeneralString {
     companion object {
         @JvmStatic lateinit var authKey : String
         @JvmStatic var gatewayUrl = "http://68.183.227.131"
+        @JvmStatic var selectedTunnel = -1
+        
+
         @JvmStatic
         lateinit var currTunel :ObservableTunnel
 

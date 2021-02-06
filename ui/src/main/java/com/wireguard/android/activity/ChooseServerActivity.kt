@@ -8,13 +8,21 @@ package com.wireguard.android.activity
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.wireguard.android.Application
 import com.wireguard.android.GeneralString
 import com.wireguard.android.R
+import com.wireguard.android.model.FAQData
 import com.wireguard.android.model.ObservableTunnel
+import com.wireguard.android.model.TunnelData
 import com.wireguard.config.Config
+import kotlinx.android.synthetic.main.faq_item.view.*
+import kotlinx.android.synthetic.main.tunnel_selection_list_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,6 +42,31 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
+
+class TunnelListAdapter(private val tunneldata: List<TunnelData>) : RecyclerView.Adapter<TunnelListHolder>() {
+
+    override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): TunnelListHolder {
+        return TunnelListHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.tunnel_selection_list_item, viewGroup, false))
+    }
+
+    override fun getItemCount(): Int = tunneldata.size
+
+    override fun onBindViewHolder(holder: TunnelListHolder, position: Int) {
+        holder.bindTunnel(tunneldata[position])
+    }
+}
+
+class TunnelListHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private val thisView = view
+
+    fun bindTunnel(tunnelData: TunnelData) {
+        thisView.tunnel_name.text = tunnelData.name
+
+        thisView.setOnClickListener(View.OnClickListener {
+            GeneralString.selectedTunnel = tunnelData.id
+        })
+    }
+}
 
 class ChooseServerActivity : AppCompatActivity(), CoroutineScope {
 

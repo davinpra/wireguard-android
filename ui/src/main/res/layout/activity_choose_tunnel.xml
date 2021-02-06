@@ -7,10 +7,20 @@
     android:fitsSystemWindows="true"
     tools:context=".activity.MainActivity">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/detail_container"
-        android:name="com.wireguard.android.fragment.TunnelListFragment"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:tag="LIST" />
+        android:background="?attr/colorBackground"
+        android:clipChildren="false">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/server_available_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            tools:itemCount="12"
+            tools:listitem="@layout/tunnel_selection_list_item" />
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
