@@ -58,8 +58,6 @@ object ErrorMessages {
             RootShellException.Reason.SHELL_MARKER_COUNT_ERROR to R.string.shell_marker_count_error,
             RootShellException.Reason.SHELL_EXIT_STATUS_READ_ERROR to R.string.shell_exit_status_read_error,
             RootShellException.Reason.SHELL_START_ERROR to R.string.shell_start_error,
-            RootShellException.Reason.CREATE_BIN_DIR_ERROR to R.string.create_bin_dir_error,
-            RootShellException.Reason.CREATE_TEMP_DIR_ERROR to R.string.create_temp_dir_error
     )
 
     operator fun get(throwable: Throwable?): String {

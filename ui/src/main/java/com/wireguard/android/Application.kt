@@ -23,6 +23,8 @@ import com.wireguard.android.backend.WgQuickBackend
 import com.wireguard.android.configStore.FileConfigStore
 import com.wireguard.android.model.FAQData
 import com.wireguard.android.model.FAQDataList
+import com.wireguard.android.model.TunnelData
+import com.wireguard.android.model.TunnelDataList
 import com.wireguard.android.model.TunnelManager
 import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ModuleLoader
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.io.IOException
 import java.io.StringReader
 import java.lang.ref.WeakReference
@@ -132,17 +135,14 @@ class Application : android.app.Application() {
 
     fun loadFAQ(){
         try {
+            FAQDataList.data = arrayListOf<FAQData>()
             var jsonString = applicationContext.assets.open("faq_list.json").bufferedReader().use { it.readText() }
 
-            val klaxon = Klaxon()
-            JsonReader(StringReader(jsonString)).use { reader ->
-                FAQDataList.data = arrayListOf<FAQData>()
-                reader.beginArray {
-                    while (reader.hasNext()) {
-                        var faqData = klaxon.parse<FAQData>(reader)
-                        faqData?.let { FAQDataList.data.add(it) }
-                    }
-                }
+            val resp = JSONObject(jsonString)
+            for (i in 0 until resp.getJSONArray("faqs").length()) {
+                val title = resp.getJSONArray("faqs").getJSONObject(i).getString("title")
+                val text = resp.getJSONArray("faqs").getJSONObject(i).getString("text")
+                FAQDataList.data.add(FAQData(title, text))
             }
         } catch (ioException: IOException) {
             ioException.printStackTrace()

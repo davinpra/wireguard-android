@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.wireguard.android.APIService
 import com.wireguard.android.GeneralString
 import com.wireguard.android.R
 import okhttp3.Call
@@ -88,6 +89,7 @@ class LoginActivity : AppCompatActivity(){
                                 val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
                                 val editor = pref1.edit()
                                 editor.putString("authkey", GeneralString.authKey).apply()
+                                APIService.refreshTunnelListData()
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             } else {
                                 ShowToast(this@LoginActivity, "Wrong Username or Password, please try again.", Toast.LENGTH_LONG)

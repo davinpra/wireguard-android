@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.wireguard.android.APIService
 import com.wireguard.android.GeneralString
 import com.wireguard.android.R
 
@@ -24,6 +25,7 @@ class SplashActivity : AppCompatActivity(){
         if (GeneralString.authKey.isEmpty()) {
             startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
         } else {
+            APIService.refreshTunnelListData()
             startActivity(Intent(this@SplashActivity, MainActivity::class.java))
         }
     }

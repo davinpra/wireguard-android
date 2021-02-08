@@ -7,7 +7,8 @@
     android:fitsSystemWindows="true"
     tools:context=".activity.MainActivity">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/colorBackground"
@@ -22,5 +23,5 @@
             tools:listitem="@layout/tunnel_selection_list_item" />
 
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

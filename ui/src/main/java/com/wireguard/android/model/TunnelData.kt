@@ -5,9 +5,15 @@
 
 package com.wireguard.android.model
 
+import com.wireguard.android.GeneralString
+
 class TunnelDataList {
     companion object {
         @JvmStatic lateinit var data: ArrayList<TunnelData>
+
+        @JvmStatic
+        fun dataInitialized() = ::data.isInitialized
     }
+
 }
 data class TunnelData(val name: String,val location: String, val id: Int)

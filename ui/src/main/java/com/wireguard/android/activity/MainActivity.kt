@@ -24,12 +24,14 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.navigation.NavigationView
+import com.wireguard.android.APIService
 import com.wireguard.android.Application
 import com.wireguard.android.GeneralString
 import com.wireguard.android.R
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
 import com.wireguard.android.model.ObservableTunnel
+import com.wireguard.android.model.TunnelDataList
 import com.wireguard.android.util.Countries
 import com.wireguard.android.util.ErrorMessages
 import com.wireguard.config.Config
@@ -111,21 +113,25 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
     var lastConnectClick : Long = 0
     var lastServerClick : Long = 0
 
+    override fun onResume() {
+        super.onResume()
+        if(TunnelDataList.dataInitialized() && !TunnelDataList.data.isEmpty() && GeneralString.selectedTunnel!=-1){
+            curr_selected_tunnel_name_txt.text = TunnelDataList.data.find { tunnelData -> tunnelData.id==GeneralString.selectedTunnel }?.location
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!GeneralString.currTunelInitialized()) {
-            GetBestServer()
-        }
 
         setContentView(R.layout.main_activity)
         connect_layout.visibility = View.VISIBLE
+        loading_layout.visibility = View.GONE
         connected_layout.visibility = View.GONE
 
-        if (GeneralString.currTunelInitialized()) {
-            curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
-        }
+
+        curr_selected_tunnel_name_txt.text = "Best"
+
         // As we're using a Toolbar, we should retrieve it and set it
         // to be our ActionBar
 
@@ -162,6 +168,15 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 R.id.faq_menu_item -> {
                     startActivity(Intent(this, FAQActivity::class.java))
                 }
+                R.id.logout_menu_item -> {
+                    disconnectRequest()
+                    val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+                    val editor = pref1.edit()
+                    editor.remove("authkey").apply()
+                    val i = Intent(this, LoginActivity::class.java)
+                    i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(i)
+                }
             }
             true
         })
@@ -189,30 +204,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 return@OnClickListener
             }
             lastConnectClick = System.currentTimeMillis()
-            if (GeneralString.currTunelInitialized()) {
-                launch {
-                    if (Application.getBackend() is GoBackend) {
-                        val intent = GoBackend.VpnService.prepare(this@MainActivity)
-                        if (intent != null) {
-                            permissionActivityResultLauncher.launch(intent)
-                            return@launch
-                        }
-                    }
-                    toggleTunnelWithPermissionsResult()
-                    //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
-                    GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
-                    connectedDuration = System.currentTimeMillis()
-                    val endpointStr=GeneralString.currTunel.config?.peers?.get(0)?.endpoint.toString()
-                    val finalIP = endpointStr.split("[")[1].split(":")[0]
-                    curr_selected_tunnel_ip_txt.text = finalIP
-                    connect_layout.visibility = View.GONE
-                    connected_layout.visibility = View.VISIBLE
-                    curr_selected_tunnel_dur.setBase(SystemClock.elapsedRealtime());
-                    curr_selected_tunnel_dur.start();
-                }
-            } else {
-                ShowToast(this@MainActivity, "Please choose a server.", Toast.LENGTH_LONG)
-            }
+            RetrieveTunnelInfo()
         })
 
         disconnect_btn.setOnClickListener(View.OnClickListener {
@@ -220,6 +212,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 ShowToast(this@MainActivity, "You tap too fast, please wait", Toast.LENGTH_LONG)
                 return@OnClickListener
             }
+            disconnectRequest()
             lastConnectClick = System.currentTimeMillis()
             launch {
                 //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
@@ -291,8 +284,8 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 .build()
         val request: Request = Request.Builder()
                 .header("Authorization", "Bearer " + GeneralString.authKey)
-                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels")
-                .post(requestBody)
+                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels/"+GeneralString.selectedTunnel)
+                .delete()
                 .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -302,41 +295,55 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                try {
-                    if (response.isSuccessful) {
-                        val responseString = response.body()!!.string()
-                        val resp = JSONObject(responseString)
-                        if (resp.getBoolean("success")) {
-                            val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
-                            try {
-                                launch {
-                                    GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
 
-                                    curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
-                                }
-                            } catch (e: Throwable) {
-
-                            }
-                        }
-                    }
-                } catch (e: IOException) {
-
-                } catch (e: JSONException) {
-
-                }
             }
         })
     }
 
-    fun GetBestServer(){
+    fun tryToConnect(){
+        launch {
+            if (Application.getBackend() is GoBackend) {
+                val intent = GoBackend.VpnService.prepare(this@MainActivity)
+                if (intent != null) {
+                    permissionActivityResultLauncher.launch(intent)
+                    GeneralString.askedPermission=true
+                    loading_layout.visibility = View.GONE
+                    return@launch
+                }
+            }
+            toggleTunnelWithPermissionsResult()
+            //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
+            GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
+            connectedDuration = System.currentTimeMillis()
+            val endpointStr=GeneralString.currTunel.config?.peers?.get(0)?.endpoint.toString()
+            val finalIP = endpointStr.split("[")[1].split(":")[0]
+            curr_selected_tunnel_ip_txt.text = finalIP
+            connect_layout.visibility = View.GONE
+            loading_layout.visibility = View.GONE
+            connected_layout.visibility = View.VISIBLE
+            curr_selected_tunnel_dur.setBase(SystemClock.elapsedRealtime());
+            curr_selected_tunnel_dur.start();
+        }
+    }
 
+    fun RetrieveTunnelInfo(){
+        if(GeneralString.askedPermission){
+            GeneralString.askedPermission=false
+            tryToConnect()
+            return
+        }
+        loading_layout.visibility = View.VISIBLE
+        var serverid=""
+        if(GeneralString.selectedTunnel!=-1){
+            serverid="?server_id="+GeneralString.selectedTunnel.toString()
+        }
         val builder = OkHttpClient.Builder()
         val client = builder.build()
         val requestBody: RequestBody = FormBody.Builder()
                 .build()
         val request: Request = Request.Builder()
                 .header("Authorization", "Bearer " + GeneralString.authKey)
-                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels")
+                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels"+serverid)
                 .post(requestBody)
                 .build()
 
@@ -356,8 +363,9 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                             try {
                                 launch {
                                     GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
+                                    tryToConnect()
 
-                                    curr_selected_tunnel_name_txt.text = GeneralString.currTunel.name
+
                                 }
                             } catch (e: Throwable) {
 

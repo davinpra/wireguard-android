@@ -66,7 +66,7 @@
     <string name="allow_remote_control_intents_summary_on">External apps may toggle tunnels (advanced)</string>
     <string name="allow_remote_control_intents_title">Allow remote control apps</string>
     <string name="allowed_ips">Allowed IPs</string>
-    <string name="app_name">Mantap Vpn</string>
+    <string name="app_name">Mantap VPN</string>
     <string name="bad_config_context">%1$s\'s %2$s</string>
     <string name="bad_config_context_top_level">%s</string>
     <string name="bad_config_error">%1$s in %2$s</string>
@@ -91,16 +91,6 @@
     <string name="config_rename_error">Cannot rename configuration file “%s”</string>
     <string name="config_save_error">Cannot save configuration for “%1$s”: %2$s</string>
     <string name="config_save_success">Successfully saved configuration for “%s”</string>
-    <string name="create_activity_title">Create WireGuard Tunnel</string>
-    <string name="create_bin_dir_error">Cannot create local binary directory</string>
-    <string name="create_downloads_file_error">Cannot create file in downloads directory</string>
-    <string name="create_empty">Create from scratch</string>
-    <string name="create_from_file">Import from file or archive</string>
-    <string name="create_from_qr_code">Scan from QR code</string>
-    <string name="create_output_dir_error">Cannot create output directory</string>
-    <string name="create_temp_dir_error">Cannot create local temporary directory</string>
-    <string name="create_tunnel">Create Tunnel</string>
-    <string name="copied_to_clipboard">%s copied to clipboard</string>
     <string name="dark_theme_summary_off">Currently using light (day) theme</string>
     <string name="dark_theme_summary_on">Currently using dark (night) theme</string>
     <string name="dark_theme_title">Use dark theme</string>
@@ -235,7 +225,7 @@
     <string name="current_label">Selected Server:</string>
     <string name="curr_server_label">Server IP</string>
     <string name="curr_dur_label">Duration</string>
-
+    <string name="connect_loading_txt">NOW CONNECTING</string>
     <string name="share_txt">Try this VPN Apps!</string>
     <string name="FAQ">Frequently Asked Questions</string>
 
