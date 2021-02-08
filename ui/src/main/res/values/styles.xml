@@ -20,6 +20,14 @@
         <item name="materialAlertDialogTheme">@style/AppTheme.Dialog</item>
         <item name="textInputStyle">@style/TextInputLayoutBase</item>
         <item name="materialCardViewStyle">@style/AppTheme.MaterialCardView</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+    </style>
+
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
     </style>
 
     <style name="AppTheme.MaterialCardView" parent="Widget.MaterialComponents.CardView">
@@ -56,8 +64,7 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="colorPrimaryDark">@android:color/transparent</item>
         <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
     </style>
 
     <style name="NoAppbarTheme" parent="AppTheme">

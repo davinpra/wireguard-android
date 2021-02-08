@@ -111,11 +111,10 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         //actionBar!!.setDisplayHomeAsUpEnabled(backStackEntries >= minBackStackEntries)
     }
     var lastConnectClick : Long = 0
-    var lastServerClick : Long = 0
 
     override fun onResume() {
         super.onResume()
-        if(TunnelDataList.dataInitialized() && !TunnelDataList.data.isEmpty() && GeneralString.selectedTunnel!=-1){
+        if(TunnelDataList.dataInitialized() && !TunnelDataList.data.isEmpty()){
             curr_selected_tunnel_name_txt.text = TunnelDataList.data.find { tunnelData -> tunnelData.id==GeneralString.selectedTunnel }?.location
         }
     }
@@ -169,13 +168,7 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                     startActivity(Intent(this, FAQActivity::class.java))
                 }
                 R.id.logout_menu_item -> {
-                    disconnectRequest()
-                    val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
-                    val editor = pref1.edit()
-                    editor.remove("authkey").apply()
-                    val i = Intent(this, LoginActivity::class.java)
-                    i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(i)
+                    disconnectRequest(true)
                 }
             }
             true
@@ -212,16 +205,26 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                 ShowToast(this@MainActivity, "You tap too fast, please wait", Toast.LENGTH_LONG)
                 return@OnClickListener
             }
-            disconnectRequest()
             lastConnectClick = System.currentTimeMillis()
-            launch {
-                //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
-                GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
-                connect_layout.visibility = View.VISIBLE
-                connected_layout.visibility = View.GONE
-                curr_selected_tunnel_dur.stop();
-            }
+            disconnectRequest()
         })
+
+
+        val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+        val connectedTime=pref1.getLong("connect_time",0)
+        if(connectedTime != 0.toLong()){
+            if(GeneralString.connectedTunnelId==-1){
+                GeneralString.connectedTunnelId = pref1.getInt("connected_tunnel",-1)
+            }
+            if(!GeneralString.currTunelInitialized() || !GeneralString.currTunel.state.equals(Tunnel.State.UP)){
+                RetrieveTunnelInfo()
+            }else if(GeneralString.currTunelInitialized() && GeneralString.currTunel.state.equals(Tunnel.State.UP)){
+                connect_layout.visibility = View.GONE
+                loading_layout.visibility = View.GONE
+                connected_layout.visibility = View.VISIBLE
+                setConnectedUIInformation(connectedTime)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -276,28 +279,61 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
         }
     }
 
-    fun disconnectRequest(){
+    fun disconnectRequest(isLogOut: Boolean =false){
+        launch {
+            //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
+            GeneralString.currTunel.setStateAsync(Tunnel.State.DOWN)
+            connect_layout.visibility = View.VISIBLE
+            connected_layout.visibility = View.GONE
+            curr_selected_tunnel_dur.stop();
+        }
+
+        if(isLogOut) {
+            runOnUiThread {
+                loading_layout_txt.text = ""
+                loading_layout.visibility = View.VISIBLE
+            }
+        }
+        val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+        val editor = pref1.edit()
+        editor.remove("connect_time").apply()
 
         val builder = OkHttpClient.Builder()
         val client = builder.build()
-        val requestBody: RequestBody = FormBody.Builder()
-                .build()
         val request: Request = Request.Builder()
                 .header("Authorization", "Bearer " + GeneralString.authKey)
-                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels/"+GeneralString.selectedTunnel)
+                .url(GeneralString.gatewayUrl.toString() + "/api/v1/tunnels/"+GeneralString.connectedTunnelId.toString())
                 .delete()
                 .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-
+                Log.e("ini", "failed"+e.message)
+                disconnectRequest(isLogOut)
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-
+                Log.e("ini",isLogOut.toString()+"wakwaw")
+                if(isLogOut){
+                    val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+                    val editor = pref1.edit()
+                    editor.remove("authkey").apply()
+                    val i = Intent(this@MainActivity, LoginActivity::class.java)
+                    i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(i)
+                }
             }
+
         })
+    }
+
+    fun setConnectedUIInformation(startTime:Long){
+        val endpointStr=GeneralString.currTunel.config?.peers?.get(0)?.endpoint.toString()
+        val finalIP = endpointStr.split("[")[1].split(":")[0]
+        curr_selected_tunnel_ip_txt.text = finalIP
+        curr_selected_tunnel_dur.setBase(startTime);
+        curr_selected_tunnel_dur.start();
     }
 
     fun tryToConnect(){
@@ -313,21 +349,29 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
             }
             toggleTunnelWithPermissionsResult()
             //Application.getTunnelManager().setTunnelState(GeneralString.currTunel,Tunnel.State.TOGGLE)
-            GeneralString.currTunel.setStateAsync(Tunnel.State.of(!GeneralString.currTunel.state.equals(Tunnel.State.UP)))
-            connectedDuration = System.currentTimeMillis()
-            val endpointStr=GeneralString.currTunel.config?.peers?.get(0)?.endpoint.toString()
-            val finalIP = endpointStr.split("[")[1].split(":")[0]
-            curr_selected_tunnel_ip_txt.text = finalIP
-            connect_layout.visibility = View.GONE
-            loading_layout.visibility = View.GONE
-            connected_layout.visibility = View.VISIBLE
-            curr_selected_tunnel_dur.setBase(SystemClock.elapsedRealtime());
-            curr_selected_tunnel_dur.start();
+            GeneralString.currTunel.setStateAsync(Tunnel.State.UP)
+            connectedDuration = SystemClock.elapsedRealtime()
+            val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+            val connectTime = pref1.getLong("connect_time",0)
+            if(connectTime == 0.toLong()) {
+                connect_layout.visibility = View.GONE
+                loading_layout.visibility = View.GONE
+                connected_layout.visibility = View.VISIBLE
+                val pref1 = getSharedPreferences("key1", Context.MODE_PRIVATE)
+                val editor = pref1.edit()
+                editor.putLong("connect_time", connectedDuration)
+                editor.putInt("connected_tunnel", GeneralString.connectedTunnelId)
+                editor.apply()
+            }else{
+                connectedDuration = connectTime
+            }
+            setConnectedUIInformation(connectedDuration)
         }
+
     }
 
     fun RetrieveTunnelInfo(){
-        if(GeneralString.askedPermission){
+        if(GeneralString.askedPermission && GeneralString.currTunelInitialized()){
             GeneralString.askedPermission=false
             tryToConnect()
             return
@@ -359,13 +403,12 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                         val responseString = response.body()!!.string()
                         val resp = JSONObject(responseString)
                         if (resp.getBoolean("success")) {
+                            GeneralString.connectedTunnelId = resp.getInt("tunnel_id")
                             val inputStream: InputStream = resp.getString("tunnel_config").byteInputStream()
                             try {
                                 launch {
                                     GeneralString.currTunel = Application.getTunnelManager().create("Best", "best", Config.parse(inputStream))
                                     tryToConnect()
-
-
                                 }
                             } catch (e: Throwable) {
 
