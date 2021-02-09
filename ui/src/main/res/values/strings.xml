@@ -228,5 +228,7 @@
     <string name="connect_loading_txt">NOW CONNECTING</string>
     <string name="share_txt">Try this VPN Apps!</string>
     <string name="FAQ">Frequently Asked Questions</string>
+    <string name="about_us">About Us</string>
+    <string name="about_us_content">www.google.com Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n www.tokopedia.com Quisque sit amet felis quis est lacinia ultrices.</string>
 
 </resources>

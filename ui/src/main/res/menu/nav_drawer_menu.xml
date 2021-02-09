@@ -12,6 +12,7 @@
             android:id="@+id/share_menu_item"
             android:icon="@drawable/ic_action_share_white"
             android:title="Share" />
+        <!--
         <item
             android:id="@+id/setting_menu_item"
             android:icon="@drawable/ic_baseline_settings_24"
@@ -20,6 +21,11 @@
             android:id="@+id/faq_menu_item"
             android:icon="@drawable/ic_faq"
             android:title="FAQ" />
+            -->
+        <item
+            android:id="@+id/about_menu_item"
+            android:icon="@drawable/ic_baseline_people_24"
+            android:title="@string/about_us" />
     </group>
     <group android:id="@+id/group2">
         <item

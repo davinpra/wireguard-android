@@ -161,12 +161,16 @@ class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener,
                     sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
                     startActivity(Intent.createChooser(sharingIntent, "Share using"))
                 }
+                R.id.about_menu_item -> {
+                    startActivity(Intent(this, AboutUsActivity::class.java))
+                }
+                /*
                 R.id.setting_menu_item -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }
                 R.id.faq_menu_item -> {
                     startActivity(Intent(this, FAQActivity::class.java))
-                }
+                }*/
                 R.id.logout_menu_item -> {
                     disconnectRequest(true)
                 }
